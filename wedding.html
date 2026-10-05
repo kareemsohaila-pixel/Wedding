@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mahmoud & Yasmin - Wedding Invitation</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Montserrat:wght@300;400;500;600&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        violetPrimary: '#4B0082',
+                        violetDark: '#2E004F',
+                        violetLight: '#8A2BE2',
+                        lavenderSoft: '#E6E6FA',
+                        creamPaper: '#FAF9F6',
+                        goldAccent: '#D4AF37',
+                        goldDark: '#AA7C11'
+                    },
+                    fontFamily: {
+                        script: ['"Great Vibes"', 'cursive'],
+                        serif: ['"Playfair Display"', 'serif'],
+                        sans: ['"Montserrat"', 'sans-serif'],
+                        arabic: ['"Cairo"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #f3efe6;
+            color: #333333;
+            overflow-x: hidden;
+        }
+
+        .paper-texture {
+            background-color: #faf9f6;
+            background-image: radial-gradient(#ece6d8 0.75px, transparent 0.75px), radial-gradient(#ece6d8 0.75px, #faf9f6 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            box-shadow: 0 20px 40px -15px rgba(75, 0, 130, 0.15), 0 0 0 1px rgba(212, 175, 55, 0.3);
+        }
+
+        .torn-edge {
+            border: 2px solid rgba(212, 175, 55, 0.4);
+            box-shadow: inset 0 0 30px rgba(75, 0, 130, 0.04);
+        }
+
+        .monogram-badge {
+            background: linear-gradient(135deg, #FFF9EB 0%, #F5E8C7 100%);
+            border: 2px solid #D4AF37;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Golden Arch Oval Photo Frame */
+        .photo-frame {
+            position: relative;
+            padding: 10px;
+            background: linear-gradient(135deg, #D4AF37, #FFF8DC, #AA7C11, #D4AF37);
+            border-radius: 9999px;
+            box-shadow: 0 12px 30px -5px rgba(75, 0, 130, 0.35);
+        }
+
+        .petal {
+            position: fixed;
+            pointer-events: none;
+            z-index: 40;
+            top: -10%;
+            animation-name: fall, sway;
+            animation-iteration-count: infinite, infinite;
+            animation-timing-function: linear, ease-in-out;
+        }
+
+        @keyframes fall {
+            0% { top: -10%; }
+            100% { top: 110%; }
+        }
+
+        @keyframes sway {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            50% { transform: translateX(50px) rotate(180deg); }
+        }
+
+        .envelope-wrapper {
+            perspective: 1000px;
+        }
+
+        .envelope {
+            transition: transform 0.8s ease-in-out;
+        }
+
+        .open-envelope .envelope-flap {
+            transform: rotateX(180deg);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF9F6;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #8A2BE2;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="relative min-h-screen text-slate-800 antialiased selection:bg-violetLight selection:text-white">
+
+    <div id="petals-container" aria-hidden="true"></div>
+
+    <div class="fixed top-5 right-5 z-50">
+        <button id="music-toggle" onclick="toggleAudio()" class="flex items-center gap-2 bg-white/90 backdrop-blur-md border border-goldAccent/50 text-violetDark px-4 py-2.5 rounded-full shadow-lg hover:bg-violetPrimary hover:text-white transition-all duration-300 group">
+            <i id="music-icon" class="fas fa-music text-goldAccent group-hover:text-white text-lg"></i>
+            <span id="music-text" class="text-xs font-semibold uppercase tracking-wider">Play Music</span>
+        </button>
+        <audio id="bg-audio" loop preload="auto">
+            <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=wedding-piano-romantic-112199.mp3" type="audio/mpeg">
+        </audio>
+    </div>
+
+    <div id="envelope-overlay" class="fixed inset-0 z-50 flex items-center justify-center bg-violetDark/95 backdrop-blur-md px-4 transition-opacity duration-700">
+        <div class="envelope-wrapper max-w-md w-full text-center">
+            <div id="envelope-box" class="envelope paper-texture rounded-2xl p-8 shadow-2xl relative border-2 border-goldAccent/60 cursor-pointer overflow-hidden transform hover:scale-[1.01] transition-all duration-300" onclick="openInvitation()">
+                
+                <div class="my-6">
+                    <div class="w-20 h-20 mx-auto rounded-full monogram-badge flex items-center justify-center mb-4">
+                        <span class="font-serif text-3xl font-bold text-goldDark tracking-tighter">M&Y</span>
+                    </div>
+                    <p class="text-goldDark font-serif italic text-sm tracking-widest uppercase mb-1">You Are Cordially Invited</p>
+                    <h2 class="font-script text-4xl text-violetDark my-2">Mahmoud & Yasmin</h2>
+                    <p class="text-xs text-slate-500 tracking-wider uppercase mt-3">Tap to Open Invitation</p>
+                </div>
+
+                <button class="mt-4 bg-gradient-to-r from-violetPrimary to-violetDark text-white px-8 py-3 rounded-full shadow-lg font-medium tracking-wide hover:brightness-110 transition duration-300 flex items-center gap-2 mx-auto">
+                    <i class="fas fa-envelope-open text-goldAccent"></i> Open Envelope
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <main id="main-content" class="min-h-screen py-10 px-4 sm:px-6 lg:px-8 max-w-4xl mx-auto opacity-0 transition-opacity duration-1000">
+        
+        <div class="paper-texture torn-edge rounded-3xl p-6 sm:p-12 relative overflow-hidden my-6">
+            
+            <!-- Floral Top-Right Accent -->
+            <div class="absolute top-0 right-0 w-44 sm:w-64 h-44 sm:h-64 pointer-events-none opacity-90">
+                <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(140, 60)">
+                        <ellipse cx="0" cy="0" rx="25" ry="14" fill="#4B0082" transform="rotate(0)"/>
+                        <ellipse cx="0" cy="0" rx="25" ry="14" fill="#8A2BE2" transform="rotate(45)"/>
+                        <ellipse cx="0" cy="0" rx="25" ry="14" fill="#2E004F" transform="rotate(90)"/>
+                        <ellipse cx="0" cy="0" rx="25" ry="14" fill="#8A2BE2" transform="rotate(135)"/>
+                        <circle cx="0" cy="0" r="7" fill="#D4AF37"/>
+                    </g>
+                </svg>
+            </div>
+
+            <!-- Header Monogram & Intro -->
+            <div class="text-center relative z-10 pt-4 pb-4">
+                <div class="w-24 h-24 mx-auto rounded-full monogram-badge flex flex-col items-center justify-center mb-6 relative">
+                    <i class="fas fa-crown text-goldDark text-xs mb-1"></i>
+                    <span class="font-serif text-3xl font-bold text-goldDark tracking-tight leading-none">M&Y</span>
+                </div>
+
+                <p class="font-arabic text-violetDark text-lg font-semibold mb-2" dir="rtl">
+                    بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
+                </p>
+                <p class="font-serif italic text-goldDark text-sm sm:text-base mb-4">
+                    "And among His signs is that He created for you mates from among yourselves..."
+                </p>
+
+                <!-- Names -->
+                <h1 class="font-script text-6xl sm:text-7xl lg:text-8xl text-violetDark my-2 leading-tight drop-shadow-sm">
+                    Mahmoud <span class="text-goldDark font-serif text-4xl sm:text-5xl font-normal">&</span> Yasmin
+                </h1>
+
+                <div class="my-8 flex flex-col items-center justify-center">
+                    <div class="photo-frame max-w-[280px] sm:max-w-[320px]">
+                        <div class="w-64 h-80 sm:w-72 sm:h-96 rounded-full overflow-hidden border-4 border-white shadow-inner bg-creamPaper relative">
+                            <img id="couple-img" 
+                                 src="https://images.unsplash.com/photo-1583939003579-730e3918a45a?q=80&w=800&auto=format&fit=crop" 
+                                 alt="Mahmoud & Yasmin" 
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=800&auto=format&fit=crop';"
+                                 class="w-full h-full object-cover object-top hover:scale-105 transition-transform duration-700">
+                        </div>
+                    </div>
+
+                    <!-- Custom Photo Link Input Toggle -->
+                    <div class="mt-4 w-full max-w-xs text-center">
+                        <button onclick="toggleImageInput()" class="text-[11px] text-violetDark/70 hover:text-violetDark underline flex items-center justify-center gap-1 mx-auto">
+                            <i class="fas fa-camera text-goldDark"></i> Change photo link / تغيير رابط الصورة
+                        </button>
+                        <div id="image-input-box" class="hidden mt-2 flex gap-1">
+                            <input type="text" id="img-url-input" placeholder="Paste image URL here..." class="w-full text-xs px-3 py-1.5 border border-goldAccent/50 rounded-lg focus:outline-none">
+                            <button onclick="updateCoupleImage()" class="bg-goldDark text-white text-xs px-3 py-1.5 rounded-lg hover:bg-violetDark transition">Apply</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Floral Divider -->
+                <div class="flex items-center justify-center gap-3 my-6">
+                    <div class="h-[1px] w-12 sm:w-20 bg-goldAccent/50"></div>
+                    <i class="fas fa-sparkles text-goldDark text-sm"></i>
+                    <div class="h-[1px] w-12 sm:w-20 bg-goldAccent/50"></div>
+                </div>
+
+                <!-- Date & Time -->
+                <div class="space-y-2 text-slate-700">
+                    <p class="font-serif text-2xl sm:text-3xl font-semibold tracking-wider text-violetDark uppercase">
+                        15 November 2026
+                    </p>
+                    <p class="font-sans text-sm sm:text-base font-medium text-goldDark uppercase tracking-widest">
+                        AT 8:00 PM
+                    </p>
+                </div>
+
+                <!-- Venue Info -->
+                <div class="mt-6 pt-4 border-t border-goldAccent/20 max-w-xs mx-auto">
+                    <h3 class="font-serif text-xl font-bold text-slate-800">Paris Plaza</h3>
+                    <p class="text-xs text-violetDark font-semibold uppercase tracking-wider mt-1">Wedding Celebration</p>
+                </div>
+            </div>
+
+            <div class="my-10 relative z-10 bg-white/80 backdrop-blur-md rounded-2xl p-6 border border-goldAccent/30 shadow-md">
+                <h3 class="text-center font-serif text-lg text-violetDark mb-4 font-semibold uppercase tracking-wider">
+                    Countdown to the Big Day
+                </h3>
+                <div class="grid grid-cols-4 gap-2 sm:gap-4 text-center">
+                    <div class="bg-violetDark text-white p-3 sm:p-4 rounded-xl shadow">
+                        <span id="days" class="block font-serif text-2xl sm:text-4xl font-bold text-goldAccent">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-widest text-lavenderSoft">Days</span>
+                    </div>
+                    <div class="bg-violetDark text-white p-3 sm:p-4 rounded-xl shadow">
+                        <span id="hours" class="block font-serif text-2xl sm:text-4xl font-bold text-goldAccent">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-widest text-lavenderSoft">Hours</span>
+                    </div>
+                    <div class="bg-violetDark text-white p-3 sm:p-4 rounded-xl shadow">
+                        <span id="minutes" class="block font-serif text-2xl sm:text-4xl font-bold text-goldAccent">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-widest text-lavenderSoft">Mins</span>
+                    </div>
+                    <div class="bg-violetDark text-white p-3 sm:p-4 rounded-xl shadow">
+                        <span id="seconds" class="block font-serif text-2xl sm:text-4xl font-bold text-goldAccent">00</span>
+                        <span class="text-[10px] sm:text-xs uppercase tracking-widest text-lavenderSoft">Secs</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="my-10 relative z-10 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Location Details Card -->
+                <div class="bg-white/90 rounded-2xl p-6 border border-goldAccent/30 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-full bg-lavenderSoft flex items-center justify-center text-violetDark mb-4">
+                            <i class="fas fa-map-marker-alt text-lg"></i>
+                        </div>
+                        <h4 class="font-serif text-lg font-bold text-violetDark">Wedding Venue</h4>
+                        <p class="text-sm font-semibold text-slate-800 mt-1">Paris Plaza Hall</p>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Shebin El Kom, Menofia Governorate, Egypt
+                        </p>
+                    </div>
+                    <a href="https://maps.google.com/?cid=2443959099573991991&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQ" 
+                       target="_blank" 
+                       class="mt-6 inline-flex items-center justify-center gap-2 bg-violetPrimary hover:bg-violetDark text-white text-xs font-semibold py-3 px-5 rounded-xl transition duration-300 shadow-sm">
+                        <i class="fas fa-directions"></i> View Location on Google Maps
+                    </a>
+                </div>
+
+                <!-- Calendar Card -->
+                <div class="bg-white/90 rounded-2xl p-6 border border-goldAccent/30 shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="w-10 h-10 rounded-full bg-lavenderSoft flex items-center justify-center text-violetDark mb-4">
+                            <i class="far fa-calendar-check text-lg"></i>
+                        </div>
+                        <h4 class="font-serif text-lg font-bold text-violetDark">Date & Program</h4>
+                        <p class="text-sm font-semibold text-slate-800 mt-1">Sunday, 15 November 2026</p>
+                        <p class="text-xs text-slate-600 mt-2 leading-relaxed">
+                            Doors Open: 7:30 PM <br>
+                            Celebration Starts: 8:00 PM
+                        </p>
+                    </div>
+                    <button onclick="addToCalendar()" class="mt-6 inline-flex items-center justify-center gap-2 bg-goldAccent hover:bg-goldDark text-white text-xs font-semibold py-3 px-5 rounded-xl transition duration-300 shadow-sm">
+                        <i class="far fa-calendar-plus"></i> Add to Google Calendar
+                    </button>
+                </div>
+            </div>
+
+            <div class="my-10 relative z-10 bg-gradient-to-br from-violetDark to-violetPrimary text-white rounded-2xl p-6 sm:p-8 shadow-xl border border-goldAccent/40">
+                <div class="text-center max-w-xl mx-auto mb-6">
+                    <span class="text-goldAccent font-serif italic text-sm">Kindly Respond</span>
+                    <h3 class="font-serif text-2xl sm:text-3xl font-bold mt-1">Will You Join Us?</h3>
+                    <p class="text-xs text-lavenderSoft mt-2">Please confirm your attendance to help us prepare for your presence.</p>
+                </div>
+
+                <form id="rsvp-form" onsubmit="submitRSVP(event)" class="max-w-md mx-auto space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-lavenderSoft mb-1">Your Full Name</label>
+                        <input type="text" required id="guest-name" placeholder="Enter your name" class="w-full px-4 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-goldAccent">
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-medium text-lavenderSoft mb-1">Attendance</label>
+                            <select id="attendance" class="w-full px-4 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-goldAccent">
+                                <option value="Yes">Joyfully Accept</option>
+                                <option value="No">Regretfully Decline</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-lavenderSoft mb-1">Number of Guests</label>
+                            <input type="number" id="guest-count" min="1" max="5" value="1" class="w-full px-4 py-2.5 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-goldAccent">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-lavenderSoft mb-1">Warm Wishes / Message (Optional)</label>
+                        <textarea id="guest-message" rows="2" placeholder="Send a message to Mahmoud & Yasmin..." class="w-full px-4 py-2 rounded-xl text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-goldAccent"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-goldAccent hover:bg-goldDark text-white font-bold py-3 rounded-xl transition duration-300 shadow-md text-sm uppercase tracking-wider">
+                        Send RSVP Confirmation
+                    </button>
+                </form>
+
+                <div id="rsvp-success" class="hidden mt-4 text-center bg-white/20 backdrop-blur-md p-4 rounded-xl border border-goldAccent/50">
+                    <i class="fas fa-heart text-goldAccent text-2xl mb-2"></i>
+                    <p class="font-serif text-base font-semibold">Thank you for your response!</p>
+                    <p class="text-xs text-lavenderSoft mt-1">We look forward to celebrating together.</p>
+                </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="text-center relative z-10 pt-6 pb-2 text-slate-500 text-xs">
+                <p class="font-serif italic text-goldDark text-sm">We can't wait to celebrate our love with you!</p>
+                <p class="mt-2 text-[10px] uppercase tracking-widest text-slate-400">Mahmoud & Yasmin • 15.11.2026</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function openInvitation() {
+            const envelopeBox = document.getElementById('envelope-box');
+            const overlay = document.getElementById('envelope-overlay');
+            const mainContent = document.getElementById('main-content');
+
+            envelopeBox.classList.add('open-envelope');
+            toggleAudio(true);
+
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4B0082', '#8A2BE2', '#D4AF37', '#E6E6FA']
+            });
+
+            setTimeout(() => {
+                overlay.classList.add('opacity-0');
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    mainContent.classList.remove('opacity-0');
+                }, 700);
+            }, 600);
+        }
+
+        function toggleImageInput() {
+            const box = document.getElementById('image-input-box');
+            box.classList.toggle('hidden');
+        }
+
+        function updateCoupleImage() {
+            const url = document.getElementById('img-url-input').value.trim();
+            if (url) {
+                document.getElementById('couple-img').src = url;
+            }
+        }
+
+        function createPetals() {
+            const container = document.getElementById('petals-container');
+            const petalCount = 18;
+            const colors = ['#8A2BE2', '#4B0082', '#D8B4F8', '#D4AF37'];
+
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.className = 'petal';
+                
+                const size = Math.random() * 12 + 10;
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size * 1.4}px`;
+                petal.style.backgroundColor = color;
+                petal.style.borderRadius = '50% 0% 50% 50%';
+                petal.style.opacity = Math.random() * 0.5 + 0.3;
+                petal.style.left = `${Math.random() * 100}vw`;
+                
+                const fallDuration = Math.random() * 8 + 7;
+                const swayDuration = Math.random() * 4 + 3;
+                const delay = Math.random() * 5;
+
+                petal.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
+                petal.style.animationDelay = `${delay}s, ${delay}s`;
+
+                container.appendChild(petal);
+            }
+        }
+
+        const weddingDate = new Date('November 15, 2026 20:00:00').getTime();
+
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const distance = weddingDate - now;
+
+            if (distance < 0) {
+                document.getElementById('days').innerText = "00";
+                document.getElementById('hours').innerText = "00";
+                document.getElementById('minutes').innerText = "00";
+                document.getElementById('seconds').innerText = "00";
+                return;
+            }
+
+            const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+            document.getElementById('days').innerText = days < 10 ? '0' + days : days;
+            document.getElementById('hours').innerText = hours < 10 ? '0' + hours : hours;
+            document.getElementById('minutes').innerText = minutes < 10 ? '0' + minutes : minutes;
+            document.getElementById('seconds').innerText = seconds < 10 ? '0' + seconds : seconds;
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+
+        let isPlaying = false;
+        function toggleAudio(forcePlay = false) {
+            const audio = document.getElementById('bg-audio');
+            const icon = document.getElementById('music-icon');
+            const text = document.getElementById('music-text');
+
+            if (forcePlay || !isPlaying) {
+                audio.play().then(() => {
+                    isPlaying = true;
+                    icon.className = 'fas fa-pause text-goldAccent group-hover:text-white text-lg';
+                    text.innerText = 'Pause Music';
+                }).catch(() => {
+                    isPlaying = false;
+                });
+            } else {
+                audio.pause();
+                isPlaying = false;
+                icon.className = 'fas fa-music text-goldAccent group-hover:text-white text-lg';
+                text.innerText = 'Play Music';
+            }
+        }
+
+        function addToCalendar() {
+            const title = encodeURIComponent("Mahmoud & Yasmin's Wedding");
+            const details = encodeURIComponent("Join us in celebrating the wedding of Mahmoud & Yasmin at Paris Plaza!");
+            const location = encodeURIComponent("Paris Plaza, Shebin El Kom, Menofia Governorate, Egypt");
+            const startDate = "20261115T180000Z";
+            const endDate = "20261115T230000Z";
+
+            const googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${title}&dates=${startDate}/${endDate}&details=${details}&location=${location}`;
+            window.open(googleCalendarUrl, '_blank');
+        }
+
+        function submitRSVP(event) {
+            event.preventDefault();
+            document.getElementById('rsvp-form').classList.add('hidden');
+            document.getElementById('rsvp-success').classList.remove('hidden');
+
+            confetti({
+                particleCount: 100,
+                spread: 80,
+                origin: { y: 0.7 },
+                colors: ['#D4AF37', '#4B0082', '#E6E6FA']
+            });
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            createPetals();
+        });
+    </script>
+</body>
+</html>
